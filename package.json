@@ -1,5 +1,6 @@
 {
-  "name": "event-broker",
+  "name": "event-broker-workspace",
+  "private": true,
   "version": "1.0.0",
   "description": "event broker based on javascript generator",
   "scripts": {},
