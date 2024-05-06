@@ -1,0 +1,14 @@
+{
+  "name": "@soulsoftware/event-broker",
+  "version": "1.0.0",
+  "description": "event broker based on javascript generator",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "bun __test__/test.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
+  "license": "MIT"
+}
