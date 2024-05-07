@@ -49,16 +49,16 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
         
     }
 
-    send( event: ListenEvent ) {
+    send( event: ListenEvent ):IteratorResult<ReplyEvent | undefined, any>  {
         if( !this._listener ) return { value: undefined }
         return (this._listener.next(event))
     }
     
-    sendAndWaitForReply( event: ListenEvent ) {
+    sendAndWaitForReply( event: ListenEvent ):any {
         return this.send( event ).value
     }
 
-    stop( startId:StartID, value?: unknown  ) {
+    stop( startId:StartID, value?: unknown  ):IteratorResult<ReplyEvent | undefined, any>|undefined {
         if( !this._listener ) return
         if( startId !== this._startId ) {
             throw new Error( 'security error: you are not owner of broker!')
@@ -82,7 +82,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
     private _startId?:StartID
     
-    async start( handler: ( event:ListenEvent ) => Promise<ReplyEvent|void> ) {
+    async start( handler: ( event:ListenEvent ) => Promise<ReplyEvent|void> ):Promise<StartID|undefined> {
 
         if( this._listener ) return 
         
@@ -112,7 +112,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
         
     }
 
-    async send( event: ListenEvent ) {
+    async send( event: ListenEvent ):Promise<IteratorResult<ReplyEvent | undefined, any>> {
         if( !this._listener ) return { value: undefined }
         return (await this._listener.next(event))
     }
@@ -121,7 +121,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
        return (await this.send( event)).value
     }
 
-    async stop( startId:StartID, value?: unknown  ) {
+    async stop( startId:StartID, value?: unknown  ):Promise<IteratorResult<ReplyEvent | undefined, any>|undefined> {
         if( !this._listener ) return
         if( startId !== this._startId ) {
             throw new Error( 'security error: you are not owner of broker!')
