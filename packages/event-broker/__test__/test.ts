@@ -25,6 +25,7 @@ function  syncTest() {
     const reply = broker.sendAndWaitForReply( { data: 'sync wait for reply', reply: true })
     console.debug( 'sync reply:', reply )
     const res = broker.stop(startid!, 'end')
+    
     console.debug( 'sync result:', res )
 }
 
@@ -55,5 +56,49 @@ async function asyncTest() {
     console.debug( 'async result:', res )
 }
 
+
+function generatorTest() {
+
+    let stopped = true
+
+    function* listener() {
+        stopped = false
+        console.debug("sync start generator!");
+    
+        let res:string|undefined = undefined;
+        let ret
+        while (!stopped) {
+            try {
+                ret = yield res
+                // console.debug( 'got:', event, 'result', res )
+                
+                console.debug( 'yield', ret)
+                
+            }
+            catch( e ) {
+                console.error( `error listening data:`, e.message )
+            }
+            finally {
+                console.error( `finally`, ret )
+            }
+        }     
+        
+        console.debug("sync finish generator");
+    
+    }
+    
+    const gen = listener()
+
+    gen.next()
+    const values = [ 'a', 'b' ]
+    values.forEach( v => console.log( `next('${v}')`, gen.next(v) ) )
+    //gen.throw( new Error( 'stop ') )
+    stopped = true
+    console.log( 'next', gen.next() )
+    console.log( `return()`, gen.return() )
+    
+}
+
 syncTest()
 asyncTest()
+generatorTest()
