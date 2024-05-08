@@ -60,7 +60,9 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
             }
         })
 
-        socket.on( SHARED_TOPIC, msg => brokerLocal.send(msg) )
+        socket.on( SHARED_TOPIC, msg => {
+            brokerLocal.send(msg)
+        })
 
         let tick = 0
         const interval = setInterval( () => 
@@ -73,12 +75,12 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
             console.log( 'reply', reply )
         } ,  5 * 1000 )
         
-        socket.on("disconnect", (reason) => { // CLEANUP
+        socket.on("disconnect", async (reason) => { // CLEANUP
             console.log( `socket ${socket.id} disconnected!`)
+            brokerLocal.stop(localStartId!)
+            await brokerRemote.stop(remoteLocalId!)
             clearInterval( interval )
             clearTimeout( timeout )
-            brokerLocal.stop(localStartId!)
-            brokerRemote.stop(remoteLocalId!)
         });
 
     })
