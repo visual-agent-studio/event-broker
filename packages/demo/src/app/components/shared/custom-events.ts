@@ -1,4 +1,3 @@
-import { send } from 'process'
 import { AsyncEventBroker, EventBroker } from '@soulsoftware/event-broker'
 
 export const SHARED_TOPIC = '__shared_topic__'
@@ -26,5 +25,19 @@ export interface ClientToServerEvents {
     [SHARED_TOPIC]: (arg:Event) => void;
 }
 
-export const brokerLocal = new EventBroker<Event>()
-export const brokerRemote = new AsyncEventBroker<Event, ReplyEvent>()
+// Nextjs Workaround 
+// [Module imported in different files re-evaluated](https://github.com/vercel/next.js/issues/49309#issuecomment-1573406873)
+const globalBrokers = global as typeof global & {
+    local?: EventBroker<Event>;
+    remote?: AsyncEventBroker<Event, ReplyEvent>
+  };
+  
+if (!globalBrokers.local) {
+    globalBrokers.local = new EventBroker<Event>()
+}
+if (!globalBrokers.remote) {
+    globalBrokers.remote = new AsyncEventBroker<Event, ReplyEvent>()
+}
+
+export const brokerLocal = globalBrokers.local
+export const brokerRemote = globalBrokers.remote
