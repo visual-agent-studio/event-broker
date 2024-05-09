@@ -84,6 +84,9 @@ export interface AsyncEventSubmitter<ListenEvent extends BaseEvent, ReplyEvent e
 export declare class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> implements AsyncEventSubmitter<ListenEvent, ReplyEvent> {
     private _listener?;
     private _startId?;
+    private static _instances;
+    private _instanceId;
+    constructor();
     /**
      * Starts listening for events.
      * @param handler The event handler.

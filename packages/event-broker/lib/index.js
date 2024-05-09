@@ -146,6 +146,8 @@ export { EventBroker };
  */
 var AsyncEventBroker = /** @class */ (function () {
     function AsyncEventBroker() {
+        this._instanceId = ++AsyncEventBroker._instances;
+        console.debug("async new broker!", this._instanceId);
     }
     /**
      * Starts listening for events.
@@ -163,7 +165,7 @@ var AsyncEventBroker = /** @class */ (function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                console.debug("async start listening...!");
+                                console.debug("async start listening...!", id, startId);
                                 res = undefined;
                                 _a.label = 1;
                             case 1:
@@ -192,12 +194,15 @@ var AsyncEventBroker = /** @class */ (function () {
                     });
                 });
             }
+            var id, startId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (this._listener)
                             return [2 /*return*/];
-                        this._startId = generateStartID();
+                        id = this._instanceId;
+                        startId = generateStartID();
+                        this._startId = startId;
                         this._listener = listener();
                         return [4 /*yield*/, this._listener.next()]; // start listening
                     case 1:
@@ -217,6 +222,7 @@ var AsyncEventBroker = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        console.debug('async send', this._instanceId, this._startId);
                         if (!this._listener)
                             return [2 /*return*/, { value: undefined }];
                         return [4 /*yield*/, this._listener.next(event)];
@@ -266,6 +272,7 @@ var AsyncEventBroker = /** @class */ (function () {
             });
         });
     };
+    AsyncEventBroker._instances = 0;
     return AsyncEventBroker;
 }());
 export { AsyncEventBroker };

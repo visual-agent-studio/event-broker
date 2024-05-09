@@ -10,5 +10,9 @@
   },
   "keywords": [],
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.1.0",
+    "node": ">=18"
+  }
 }
