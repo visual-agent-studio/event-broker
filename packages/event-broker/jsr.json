@@ -1,6 +1,6 @@
 {
   "name": "@soulsoftware/event-broker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "exports": "./src/index.ts",
   "publish": {
     "exclude": ["__tests__", "lib"]

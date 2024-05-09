@@ -14,6 +14,7 @@ import {
     SHARED_REPLY_TOPIC
 } from '@/app/components/shared/custom-events'
 
+import { sendAndWaitForReply } from '@/app/components/server/event'
 
 type NextApiRespnseIO = NextApiResponse & {
     socket: Socket & {
@@ -60,28 +61,33 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
             }
         })
 
-        socket.on( SHARED_TOPIC, msg => brokerLocal.send(msg) )
+        socket.on( SHARED_TOPIC, msg => {
+            brokerLocal.send(msg)
+        })
 
-        let tick = 0
-        const interval = setInterval( () => 
-            brokerRemote.send( { data: `ping${tick++}` } )
-        , 1000 )
+        const interval = pingClient()
 
-        const timeout = setTimeout( async () => {
-            console.log( 'emitting and wait for replay')
-            const reply = await brokerRemote.sendAndWaitForReply( { data: `how are you?`, reply: true } )
-            console.log( 'reply', reply )
-        } ,  5 * 1000 )
+        const timeout = sendAndWaitForReply()
         
-        socket.on("disconnect", (reason) => { // CLEANUP
+        socket.on("disconnect", async (reason) => { // CLEANUP
             console.log( `socket ${socket.id} disconnected!`)
+            brokerLocal.stop(localStartId!)
+            await brokerRemote.stop(remoteLocalId!)
             clearInterval( interval )
             clearTimeout( timeout )
-            brokerLocal.stop(localStartId!)
-            brokerRemote.stop(remoteLocalId!)
         });
 
     })
 
     res.end()
+}
+
+export function pingClient() {
+    let tick = 0
+    const interval = setInterval( () => 
+        brokerRemote.send( { data: `ping${tick++}` } )
+    , 1000 )
+
+    return interval
+
 }

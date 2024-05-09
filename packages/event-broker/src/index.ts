@@ -1,11 +1,14 @@
+/**
+ * event broker based on javascript generator etiher synchronous and asynchronous
+ * 
+ * @module event-broker
+ */
+
 
 export type StartID = string;
 
 const generateStartID = (): StartID => 
     `_ID${Math.floor(Math.random()*Date.now())}@${Date.now()}_`
-
-
-
 
 /**
  * BaseEvent is a type alias for a Record with string keys and any values.
@@ -53,29 +56,35 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
     start( handler: ( event:ListenEvent ) => ReplyEvent|void ):StartID|undefined {
         if( this._listener ) return
 
-        function* listener():Generator<ReplyEvent|undefined, any, ListenEvent> {
         
-            console.debug("sync start listening...!");
+        function* listener(id:string):Generator<ReplyEvent|undefined, any, ListenEvent> {
+        
+            console.debug("sync start listening...!", id);
     
             let res:ReplyEvent|undefined = undefined;
 
             while (true) {
                 try {
                     let event = yield res
-                    // console.debug( 'got:', event, 'result', res )
-                    const ret = handler( event )
-                    res = ret ?? undefined
+                    
+                    try {
+                        const ret = handler( event )
+                        res = ret ?? undefined    
+                    }
+                    catch( e ) {
+                        console.warn( 'error evaluating handler!', e)
+                    }
                     
                 }
                 catch( e ) {
-                    console.error( `error listening data`, e)
+                    console.error( `error yield(ing) data!`, e)
                 }
             }            
         }
         
         this._startId = generateStartID()
-        this._listener = listener()
-        this._listener.next() 
+        this._listener = listener(this._startId)
+        this._listener.next() // start listening
         return this._startId;
         
     }
@@ -162,27 +171,34 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
         /**
          * An asynchronous generator function that listens for events.
          */
-        async function* listener():AsyncGenerator<ReplyEvent|undefined, any, ListenEvent> {
+        async function* listener(id:string):AsyncGenerator<ReplyEvent|undefined, any, ListenEvent> {
         
-            console.debug("async start listening...!");
+            console.debug("async start listening...!", id);
     
             let res:ReplyEvent|undefined = undefined;
 
             while (true) {
                 try {
                     let event = yield res
-                    // console.debug( 'got:', event, 'result', res )
-                    const ret = await handler( event )
-                    res = ret ?? undefined
+                    
+                    try { 
+                        const ret = await handler( event )
+                        res = ret ?? undefined    
+                    }
+                    catch( e ) {
+                        console.warn( 'error evaluating handler!', e)
+                    }
                 }
                 catch( e ) {
-                    console.error( `error listening data`, e)
+                    console.error( `error yield(ing) data!`, e)
+                    break
+
                 }
             }            
         }
         
         this._startId = generateStartID()
-        this._listener = listener()
+        this._listener = listener(this._startId)
         await this._listener.next()  // start listening
         return this._startId;
         

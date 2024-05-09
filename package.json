@@ -1,9 +1,13 @@
 {
   "name": "event-broker-workspace",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "event broker based on javascript generator",
-  "scripts": {},
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "demo": "npm run build --workspaces",
+    "changelog": "git-changelog-command-line -of CHANGELOG.md"
+  },
   "keywords": [],
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
   "license": "MIT",

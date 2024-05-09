@@ -50,9 +50,19 @@ var __asyncGenerator = (this && this.__asyncGenerator) || function (thisArg, _ar
 var generateStartID = function () {
     return "_ID".concat(Math.floor(Math.random() * Date.now()), "@").concat(Date.now(), "_");
 };
+/**
+ * EventBroker class that implements EventSubmitter interface.
+ * @template ListenEvent The type of the event to listen for.
+ * @template ReplyEvent The type of the event to reply with.
+ */
 var EventBroker = /** @class */ (function () {
     function EventBroker() {
     }
+    /**
+     * Starts listening for events.
+     * @param handler The function to handle the event.
+     * @returns The start ID.
+     */
     EventBroker.prototype.start = function (handler) {
         if (this._listener)
             return;
@@ -91,14 +101,31 @@ var EventBroker = /** @class */ (function () {
         this._listener.next();
         return this._startId;
     };
+    /**
+     * Sends an event and returns an iterator result.
+     * @param event The event to send.
+     * @returns An iterator result containing the reply event or undefined.
+     */
     EventBroker.prototype.send = function (event) {
         if (!this._listener)
             return { value: undefined };
         return (this._listener.next(event));
     };
+    /**
+     * Sends an event and waits for a reply.
+     * @param event The event to send.
+     * @returns The reply event.
+     */
     EventBroker.prototype.sendAndWaitForReply = function (event) {
         return this.send(event).value;
     };
+    /**
+     * Stops listening for events.
+     * @param startId The start ID.
+     * @param value The value to return.
+     * @returns An iterator result containing the reply event or undefined.
+     * @throws An error if the start ID does not match.
+     */
     EventBroker.prototype.stop = function (startId, value) {
         if (!this._listener)
             return;
@@ -112,18 +139,33 @@ var EventBroker = /** @class */ (function () {
     return EventBroker;
 }());
 export { EventBroker };
+/**
+ * An asynchronous event broker.
+ * @template ListenEvent The type of event to listen for.
+ * @template ReplyEvent The type of event to reply with.
+ */
 var AsyncEventBroker = /** @class */ (function () {
     function AsyncEventBroker() {
+        this._instanceId = ++AsyncEventBroker._instances;
+        console.debug("async new broker!", this._instanceId);
     }
+    /**
+     * Starts listening for events.
+     * @param handler The event handler.
+     * @returns A promise containing the start ID or undefined.
+     */
     AsyncEventBroker.prototype.start = function (handler) {
         return __awaiter(this, void 0, void 0, function () {
+            /**
+             * An asynchronous generator function that listens for events.
+             */
             function listener() {
                 return __asyncGenerator(this, arguments, function listener_1() {
                     var res, event_2, ret, e_2;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                console.debug("async start listening...!");
+                                console.debug("async start listening...!", id, startId);
                                 res = undefined;
                                 _a.label = 1;
                             case 1:
@@ -152,12 +194,15 @@ var AsyncEventBroker = /** @class */ (function () {
                     });
                 });
             }
+            var id, startId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (this._listener)
                             return [2 /*return*/];
-                        this._startId = generateStartID();
+                        id = this._instanceId;
+                        startId = generateStartID();
+                        this._startId = startId;
                         this._listener = listener();
                         return [4 /*yield*/, this._listener.next()]; // start listening
                     case 1:
@@ -167,11 +212,17 @@ var AsyncEventBroker = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Sends an event and returns an iterator result.
+     * @param event The event to send.
+     * @returns A promise containing an iterator result containing the reply event or undefined.
+     */
     AsyncEventBroker.prototype.send = function (event) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        console.debug('async send', this._instanceId, this._startId);
                         if (!this._listener)
                             return [2 /*return*/, { value: undefined }];
                         return [4 /*yield*/, this._listener.next(event)];
@@ -180,6 +231,11 @@ var AsyncEventBroker = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Sends an event and waits for a reply.
+     * @param event The event to send.
+     * @returns A promise containing the reply event.
+     */
     AsyncEventBroker.prototype.sendAndWaitForReply = function (event) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -190,6 +246,13 @@ var AsyncEventBroker = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Stops listening for events.
+     * @param startId The start ID.
+     * @param value The value to return.
+     * @returns An iterator result containing the reply event or undefined.
+     * @throws An error if the start ID does not match.
+     */
     AsyncEventBroker.prototype.stop = function (startId, value) {
         return __awaiter(this, void 0, void 0, function () {
             var l;
@@ -209,6 +272,7 @@ var AsyncEventBroker = /** @class */ (function () {
             });
         });
     };
+    AsyncEventBroker._instances = 0;
     return AsyncEventBroker;
 }());
 export { AsyncEventBroker };
