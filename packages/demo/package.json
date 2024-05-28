@@ -1,5 +1,5 @@
 {
-  "name": "evtbus-nextjs-app",
+  "name": "event-broker-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,7 +15,8 @@
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "ws": "^8.16.0",
-    "@soulsoftware/event-broker": "*"
+    "@soulsoftware/event-broker": "*",
+    "@soulsoftware/event-broker-react": "*"
   },
   "devDependencies": {
     "typescript": "^5",

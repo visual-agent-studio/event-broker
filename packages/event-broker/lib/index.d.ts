@@ -1,3 +1,8 @@
+/**
+ * event broker based on javascript generator etiher synchronous and asynchronous
+ *
+ * @module event-broker
+ */
 export type StartID = string;
 /**
  * BaseEvent is a type alias for a Record with string keys and any values.
@@ -36,6 +41,11 @@ export declare class EventBroker<ListenEvent extends BaseEvent, ReplyEvent exten
      * @returns The start ID.
      */
     start(handler: (event: ListenEvent) => ReplyEvent | void): StartID | undefined;
+    /**
+     * Checks if the event broker is currently started.
+     * @returns {boolean} True if the event broker is started, otherwise false.
+     */
+    get isStarted(): boolean;
     /**
      * Sends an event and returns an iterator result.
      * @param event The event to send.
@@ -84,15 +94,17 @@ export interface AsyncEventSubmitter<ListenEvent extends BaseEvent, ReplyEvent e
 export declare class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> implements AsyncEventSubmitter<ListenEvent, ReplyEvent> {
     private _listener?;
     private _startId?;
-    private static _instances;
-    private _instanceId;
-    constructor();
     /**
      * Starts listening for events.
      * @param handler The event handler.
      * @returns A promise containing the start ID or undefined.
      */
     start(handler: (event: ListenEvent) => Promise<ReplyEvent | void>): Promise<StartID | undefined>;
+    /**
+     * Checks if the event broker is currently started.
+     * @returns {boolean} True if the event broker is started, otherwise false.
+     */
+    get isStarted(): boolean;
     /**
      * Sends an event and returns an iterator result.
      * @param event The event to send.

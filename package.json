@@ -1,11 +1,11 @@
 {
   "name": "event-broker-workspace",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "event broker based on javascript generator",
   "scripts": {
     "build": "npm run build --workspaces",
-    "demo": "npm run build --workspaces",
+    "demo": "npm run dev -w=event-broker-demo",
     "changelog": "git-changelog-command-line -of CHANGELOG.md"
   },
   "keywords": [],

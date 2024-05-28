@@ -1,7 +1,7 @@
 {
-  "name": "@soulsoftware/event-broker",
+  "name": "@soulsoftware/event-broker-react",
   "version": "1.1.0",
-  "description": "event broker based on javascript generator",
+  "description": "event broker react hook",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
@@ -14,5 +14,9 @@
   "engines": {
     "bun": ">=1.1.0",
     "node": ">=18"
+  },
+  "dependencies": {
+    "react": "^18",
+    "@soulsoftware/event-broker": "1.1.0"
   }
 }
