@@ -1,7 +1,7 @@
 {
   "name": "event-broker-workspace",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "event broker based on javascript generator",
   "scripts": {
     "build": "npm run build --workspaces",
