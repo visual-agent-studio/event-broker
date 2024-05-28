@@ -1,10 +1,12 @@
 import {   
-    brokerRemote, 
+    Event,
+    ReplyEvent,
 } from '@/app/components/shared/custom-events'
+import { AsyncEventBroker } from '@soulsoftware/event-broker'
 
 
 
-export function sendAndWaitForReply() {
+export function sendAndWaitForReply( brokerRemote: AsyncEventBroker<Event, ReplyEvent> ) {
 
     const timeout = setTimeout( async () => {
         console.log( 'emitting and wait for replay')

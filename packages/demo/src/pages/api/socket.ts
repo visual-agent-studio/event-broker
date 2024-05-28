@@ -6,15 +6,18 @@ import { Server } from 'socket.io'
 
 import {   
     WS_PATH, 
-    brokerLocal, 
-    brokerRemote, 
+    newBrokerLocal, 
+    newBrokerRemote, 
     ClientToServerEvents, 
     ServerToClientEvents, 
     SHARED_TOPIC,
-    SHARED_REPLY_TOPIC
+    SHARED_REPLY_TOPIC,
+    Event,
+    ReplyEvent
 } from '@/app/components/shared/custom-events'
 
 import { sendAndWaitForReply } from '@/app/components/server/event'
+import { AsyncEventBroker, EventBroker, StartID } from '@soulsoftware/event-broker';
 
 type NextApiRespnseIO = NextApiResponse & {
     socket: Socket & {
@@ -22,6 +25,18 @@ type NextApiRespnseIO = NextApiResponse & {
     }
   }
   
+interface  SocketSession {
+
+    localStartId?: StartID
+    brokerLocal: EventBroker<Event>
+    remoteStartId?:StartID
+    brokerRemote: AsyncEventBroker<Event, ReplyEvent>
+
+
+}
+
+
+
 export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
     
 
@@ -36,17 +51,26 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
 
     res.socket.server.io = io
     
-    let localStartId, remoteLocalId
+    const socketSessionMap = new Map<string,SocketSession>()
+
 
     io.on('connection', async socket => { 
         
         console.log( `socket ${socket.id} connected!`)
 
-        localStartId = brokerLocal.start( msg => {
+        const session:SocketSession = {
+
+            brokerLocal: newBrokerLocal(),
+            brokerRemote: newBrokerRemote()
+        }
+
+        socketSessionMap.set( socket.id, session )
+
+        session.localStartId = session.brokerLocal.start( msg => {
             console.log( 'message from client', msg ) 
         })
          
-        remoteLocalId = await brokerRemote.start( async msg => {
+        session.remoteStartId = await session.brokerRemote.start( async msg => {
             console.debug( "send to client", msg )
 
             if( msg.reply ) {
@@ -62,17 +86,25 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
         })
 
         socket.on( SHARED_TOPIC, msg => {
-            brokerLocal.send(msg)
+            session.brokerLocal.send(msg)
         })
 
-        const interval = pingClient()
-
-        const timeout = sendAndWaitForReply()
+        const interval = pingClient( session )
+        const timeout = sendAndWaitForReply( session.brokerRemote )
         
         socket.on("disconnect", async (reason) => { // CLEANUP
             console.log( `socket ${socket.id} disconnected!`)
-            brokerLocal.stop(localStartId!)
-            await brokerRemote.stop(remoteLocalId!)
+
+            const session = socketSessionMap.get(socket.id)
+
+            if( session?.localStartId ) {
+                session.brokerLocal.stop(session.localStartId)
+            }
+            
+            if( session?.remoteStartId ) {
+                await session.brokerRemote.stop(session.remoteStartId!)
+            }
+            
             clearInterval( interval )
             clearTimeout( timeout )
         });
@@ -82,10 +114,10 @@ export default function handler(req: NextApiRequest, res: NextApiRespnseIO) {
     res.end()
 }
 
-export function pingClient() {
+export function pingClient( session: SocketSession ) {
     let tick = 0
     const interval = setInterval( () => 
-        brokerRemote.send( { data: `ping${tick++}` } )
+        session.brokerRemote.send( { data: `ping${tick++}` } )
     , 1000 )
 
     return interval

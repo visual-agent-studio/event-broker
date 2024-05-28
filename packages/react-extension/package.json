@@ -1,0 +1,22 @@
+{
+  "name": "@soulsoftware/event-broker-react",
+  "version": "1.0.1",
+  "description": "event broker react hook",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "bun __test__/test.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.1.0",
+    "node": ">=18"
+  },
+  "dependencies": {
+    "react": "^18",
+    "@soulsoftware/event-broker": "*"
+  }
+}
