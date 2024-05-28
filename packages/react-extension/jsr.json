@@ -1,0 +1,8 @@
+{
+  "name": "@soulsoftware/event-broker-react",
+  "version": "1.0.1",
+  "exports": "./src/index.ts",
+  "publish": {
+    "exclude": ["__tests__", "lib"]
+  }  
+}
