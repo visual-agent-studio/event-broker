@@ -2,6 +2,32 @@
 
 Changelog of event-broker.
 
+## v1.1.0 (2024-05-28)
+
+### Features
+
+-  **react-ext**  add react hooks to manage event-broker ([ef6e9](https://github.com/visual-agent-studio/event-broker/commit/ef6e98f9ad13861) bsorrentino)  
+-  **event-broker**  add is started getter ([0263b](https://github.com/visual-agent-studio/event-broker/commit/0263b52951364b0) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.1.0'**
+
+
+[5c698](https://github.com/visual-agent-studio/event-broker/commit/5c698eb6984183f) bsorrentino *2024-05-28 22:02:47*
+
+**Merge branch 'feature/_#1_hooks' into develop**
+
+
+[c4980](https://github.com/visual-agent-studio/event-broker/commit/c4980d128116737) bsorrentino *2024-05-28 21:51:58*
+
+**Merge tag 'v1.0.1' into develop**
+
+* new minor 
+
+[08836](https://github.com/visual-agent-studio/event-broker/commit/08836de109a37f7) bsorrentino *2024-05-09 15:23:15*
+
+
 ## v1.0.1 (2024-05-09)
 
 ### Features
