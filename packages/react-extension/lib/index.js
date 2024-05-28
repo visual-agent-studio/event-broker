@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useEventBroker = exports.useAsyncEventBroker = void 0;
 const react_1 = require("react");
+const _TRACE = (action) => {
+    // action()
+};
 /**
  * Custom hook to manage AsyncEventBroker lifecycle
  *
@@ -23,14 +26,14 @@ function useAsyncEventBroker(broker, handler) {
             brokerId.current = await broker.start(handler);
         },
         stop: async () => {
-            console.trace('request stop!', brokerId);
+            _TRACE(() => console.trace('request stop!', brokerId));
             const id = brokerId.current;
             brokerId.current = undefined;
             if (id) {
                 try {
-                    console.trace('stopping....!', id);
+                    _TRACE(() => console.trace('stopping....!', id));
                     await broker.stop(id);
-                    console.trace('stopped....!', id);
+                    _TRACE(() => console.trace('stopped....!', id));
                 }
                 catch (e) {
                     console.warn(e.message);
@@ -74,14 +77,14 @@ function useEventBroker(broker, handler) {
             brokerId.current = broker.start(handler);
         },
         stop: () => {
-            console.trace('request stop!', brokerId);
+            _TRACE(() => console.trace('request stop!', brokerId));
             const id = brokerId.current;
             brokerId.current = undefined;
             if (id) {
                 try {
-                    console.trace('stopping....!', id);
+                    _TRACE(() => console.trace('stopping....!', id));
                     broker.stop(id);
-                    console.trace('stopped....!', id);
+                    _TRACE(() => console.trace('stopped....!', id));
                 }
                 catch (e) {
                     console.warn(e.message);
