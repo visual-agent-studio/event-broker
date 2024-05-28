@@ -5,7 +5,7 @@
   "description": "event broker based on javascript generator",
   "scripts": {
     "build": "npm run build --workspaces",
-    "demo": "npm run build --workspaces",
+    "demo": "npm run dev -w=event-broker-demo",
     "changelog": "git-changelog-command-line -of CHANGELOG.md"
   },
   "keywords": [],

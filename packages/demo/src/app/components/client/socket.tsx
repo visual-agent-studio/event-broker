@@ -3,16 +3,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { SHARED_TOPIC, WS_PATH, brokerLocal, brokerRemote, SHARED_REPLY_TOPIC, Event } from '@/app/components/shared/custom-events'
+import { SHARED_TOPIC, WS_PATH, newBrokerLocal, newBrokerRemote, SHARED_REPLY_TOPIC, Event } from '@/app/components/shared/custom-events'
 
-
+import { useAsyncEventBroker, useEventBroker } from '@soulsoftware/event-broker-react';
 
 export default function SocketViewer() {
 
   const [value, setValue] = useState('')
   const [valueToSend, setValueToSend] = useState('')
 
-  useSocket( '/api/socket', msg => {
+  const brokerRemoteProxy = useSocket( '/api/socket', msg => {
     if( msg.reply ) {
       const result = window.prompt( msg.data )
       return { data: result! }
@@ -22,10 +22,8 @@ export default function SocketViewer() {
     }
    } );
 
-  const sendToServer = async (e:any) => {   
-    await brokerRemote.send( { data: valueToSend } )
-  }
-
+  const sendToServer = async (e:any) => await brokerRemoteProxy.send( { data: valueToSend } )
+  
   
   return (
     <div className="bg-white shadow-md rounded-md p-4 w-full">
@@ -44,13 +42,14 @@ export default function SocketViewer() {
 }
 
 
-
 function useSocket( api: string, fromServer: (event: Event) => void | Event ) {
-  let localStartId:any, remoteLocalId:any, socket:Socket
 
-  const firstRender = useRef(true);
+  const brokerLocalProxy = useEventBroker( newBrokerLocal() )
+  const brokerRemoteProxy = useAsyncEventBroker( newBrokerRemote() );
 
   useEffect( () => { 
+    let socket:Socket|undefined 
+
     const socketInitializer = async () => {
       // We call this just to make sure we turn on the websocket server
       await fetch(api)
@@ -59,58 +58,47 @@ function useSocket( api: string, fromServer: (event: Event) => void | Event ) {
 
       socket.on('connect', async () => {
 
-        console.debug('Connected', socket.id) 
+        console.debug('Connected', socket?.id) 
 
-        localStartId = brokerLocal.start( fromServer )
+        brokerLocalProxy.start( fromServer )
   
-        remoteLocalId = await brokerRemote.start( async msg => {
+        await brokerRemoteProxy.start( async msg => {
           console.debug( "send to server", msg )
-          socket.emit( SHARED_TOPIC, msg )
+          socket?.emit( SHARED_TOPIC, msg )
         })
       
-        socket.on( SHARED_TOPIC, msg => {
+        socket?.on( SHARED_TOPIC, msg => {
           console.debug( `from server ${socket?.id}`, msg )
-          brokerLocal.send(msg) 
+          brokerLocalProxy.send(msg) 
         })
-        socket.on( SHARED_REPLY_TOPIC, (msg, callback ) => {
-            const reply = brokerLocal.sendAndWaitForReply( { ...msg, reply:true }) 
+        socket?.on( SHARED_REPLY_TOPIC, (msg, callback ) => {
+            const reply = brokerLocalProxy.sendAndWaitForReply( { ...msg, reply:true }) 
             callback( reply )
         })
       })
 
       socket.on('disconnect', async () => {
         console.log( 'socket disconnect')
-        if( localStartId ) {
-          brokerLocal.stop(localStartId)
-          console.debug( 'local broker stopped!')
-        }
-        if( remoteLocalId ) {
-          await brokerRemote.stop(remoteLocalId)
-          console.debug( 'remote broker stopped!')
-        }
+        brokerLocalProxy.stop()
+        await brokerRemoteProxy.stop()
       })
     }
 
-    if( firstRender.current ) {
-      firstRender.current = false
-      socketInitializer().then( () => console.debug( 'socket initialized'))
-    }
-    
-
     return () => { 
-      if( localStartId ) {
-        brokerLocal.stop(localStartId)
-        console.debug( 'local broker stopped!')
+      if( socket ) {
+        if( !socket.disconnected ) {
+          socket.close()
+          console.debug( 'socket closed!')  
+        }
+        socket = undefined
       }
-      if( remoteLocalId ) {
-        brokerRemote.stop(remoteLocalId).then( () => console.debug( 'remote broker stopped!'))
-      }
-      if( socket &&  !socket.disconnected ) {
-        socket.close()
-        console.debug( 'socket closed!')
+      else {
+        socketInitializer().then( () => console.debug( 'socket initialized'))
       }
      }
   }, [] )
+
+  return brokerRemoteProxy
 
   
 }
