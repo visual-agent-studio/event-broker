@@ -90,6 +90,14 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
     }
 
     /**
+     * Checks if the event broker is currently started.
+     * @returns {boolean} True if the event broker is started, otherwise false.
+     */
+    get isStarted(): boolean {
+        return !!this._listener;
+    }
+    
+    /**
      * Sends an event and returns an iterator result.
      * @param event The event to send.
      * @returns An iterator result containing the reply event or undefined.
@@ -204,6 +212,14 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
         
     }
 
+    /**
+     * Checks if the event broker is currently started.
+     * @returns {boolean} True if the event broker is started, otherwise false.
+     */
+    get isStarted(): boolean {
+        return !!this._listener;
+    }
+     
     /**
      * Sends an event and returns an iterator result.
      * @param event The event to send.
