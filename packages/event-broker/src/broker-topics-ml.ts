@@ -1,8 +1,8 @@
 
-import {  BaseEvent } from './broker'
-import { AsyncEventBrokerML, ListenerID,  } from './broker-ml'
+import {  BaseEvent, ListenerID } from './broker'
+import { AsyncEventBrokerML  } from './broker-ml'
 
-type EventHandler<ListenEvent, ReplyEvent> = (event: ListenEvent) => Promise<ReplyEvent | void>
+type AsyncEventHandler<ListenEvent, ReplyEvent> = (event: ListenEvent) => Promise<ReplyEvent | void>
 
 /**
  * An asynchronous event broker.
@@ -29,7 +29,7 @@ export class AsyncEventBrokerTopicsML<ListenEvent extends BaseEvent, ReplyEvent 
         return count
     }
 
-    on(topic: string, handler: EventHandler<ListenEvent, ReplyEvent>): ListenerID {
+    on(topic: string, handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID {
         if (!/\w+/.test(topic)) throw new Error("topic is not valid!")
 
         let broker = this._topicMap.get(topic)

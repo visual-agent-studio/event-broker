@@ -1,14 +1,7 @@
 
-import { AsyncEventBroker, BaseEvent } from './broker'
+import { AsyncEventBroker, AsyncEventHandler, BaseEvent, ListenerID, generateListenerID } from './broker'
 
 
-export type ListenerID = string;
-
-export const generateListenerID = ():ListenerID =>
-    `el_${Math.floor(Math.random() * Date.now())}@${Date.now()}_`
-
-
-type EventHandler<ListenEvent, ReplyEvent> = (event: ListenEvent) => Promise<ReplyEvent | void>
 
 /**
  * An asynchronous event broker.
@@ -17,7 +10,7 @@ type EventHandler<ListenEvent, ReplyEvent> = (event: ListenEvent) => Promise<Rep
  */
 export class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> {
 
-    private _listenerMap = new Map<ListenerID, EventHandler<ListenEvent, ReplyEvent>>()
+    private _listenerMap = new Map<ListenerID, AsyncEventHandler<ListenEvent, ReplyEvent>>()
 
     private _broker = new AsyncEventBroker<ListenEvent, PromiseSettledResult<void | ReplyEvent>[]>()
 
@@ -37,7 +30,7 @@ export class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extend
         return this._listenerMap.size
     }
 
-    on( handler: EventHandler<ListenEvent, ReplyEvent>): ListenerID {
+    on( handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID {
 
         const listenerId = generateListenerID()
         this._listenerMap.set(listenerId, handler)
@@ -72,13 +65,9 @@ export class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extend
 
     async emitWithReplys( event: ListenEvent): Promise<ReplyEvent[]> {
 
-        const result = await this._broker.send( event )
+        const value = await this._broker.emitWithReply( event )
 
-        if (!result.value) {
-            throw new Error(`no reply event returned by listeners!`)
-        }
-
-        const fullfilled = result.value.filter(v => v.status === 'fulfilled')
+        const fullfilled = value.filter(v => v.status === 'fulfilled')
             .map(v => (<PromiseFulfilledResult<ReplyEvent>>v).value)
             .filter(v => !!v)
 
