@@ -130,8 +130,8 @@ test("test send messages one topic more listeners", async () => {
 
     expect( await broker.emit( 't2', { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( 't2', { data: 'd1' } ) )
-        .rejects.toThrow( 'no reply event returned by listeners!')
+        .rejects.toThrow( 'no reply event returned by listener!')
     expect( broker.emitWithReplys( 't2', { data: 'd1' } ) )
-        .rejects.toThrow( 'no reply event returned by listeners!')
+        .rejects.toThrow( 'no reply event returned by listener!')
 
 });

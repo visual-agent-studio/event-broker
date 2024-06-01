@@ -1,63 +1,140 @@
+import { expect, test } from "bun:test";
+
 import { AsyncEventBroker, EventBroker } from "../src/index"
 
-function  syncTest() {
-    type ListenEvent = { data: string, reply?:boolean  }
-    type ReplyEvent = { result: string }
+const replySymbol = Symbol("reply");
+
+type ListenEvent = { data: string, [replySymbol]?: boolean  }
+type ReplyEvent = { result: string }
+
+test( "async broker test", async () => {
+
+    const broker = new AsyncEventBroker<ListenEvent,ReplyEvent>()
+
+    const eventsHistory = new Array<string>()
+
+    const listenid = await broker.on(  async ( ev ) => {
+        
+        if( !!ev[replySymbol] ) {
+            return Promise.resolve( { result: 'this is the reply' } );
+        }
+
+        eventsHistory.push( ev.data )
+
+        return
+    })
+
+    expect( broker.isOn ).toBeTrue()
+    
+    const messages = [ 
+        'async 10', 
+        'async hello world 1!', 
+        'async hello world 2!', 
+        'async hello world 3!', 
+        'async 11'
+    ]
+    
+    const emits = messages.map( data =>  broker.emit( { data } ) )
+    
+    const results = await Promise.allSettled( emits )
+    
+    results.forEach( r => { 
+
+        expect( r.status ).toBe( 'fulfilled' )
+        expect( (<any>r).value ).toBeTrue()
+    })
+    
+    expect( eventsHistory ).toBeArrayOfSize(5)
+    expect( eventsHistory ).toEqual( messages )
+
+    const reply = await broker.sendAndWaitForReply( { data: 'async wait for reply ', [replySymbol]: true })
+
+    expect( reply ).not.toBeNil()
+    expect( reply.result ).toBe( 'this is the reply' )
+
+    const res = await broker.stop(listenid!)
+
+    expect( res ).toBeTrue()
+    expect( broker.isOn ).toBeFalse()
+        
+})
+
+test( "async broker test once", async () => {
+
+    const broker = new AsyncEventBroker<ListenEvent,ReplyEvent>()
+
+    const id = await broker.once(  async ( ev ) => {
+        
+        if( !!ev[replySymbol] ) {
+            return Promise.resolve( { result: 'this is the reply' } );
+        }
+
+
+        return
+    })
+
+    expect( id ).not.toBeNil()
+
+    let res = await broker.emit( { data: "Event Data" } )
+    expect( res ).toBeTrue()
+    expect( broker.isOn ).toBeFalse()
+    res = await broker.off(id!)
+    expect( res ).toBeFalse()
+
+    res = await broker.emit( { data: "Event Data 2" } )
+    expect( res ).toBeFalse()
+
+})
+
+test( "broker test", () => {
 
     const broker = new EventBroker<ListenEvent,ReplyEvent>()
 
-    const startid = broker.start( ( e ) => {
-        
-        console.debug( 'heard:', e)
-        if( e.reply ) {
-            console.debug( 'reply')
-            return { result: 'sync this is the reply' };
-        }
-        return
-      })
-    console.log( startid )
+    const eventsHistory = new Array<string>()
 
-    broker.send( { data: 'sync 10' } )
-    broker.send( { data: 'sync hello world 1! ' } )
-    broker.send( { data: 'sync hello world 2!' } )
-    broker.send( { data: 'sync hello world 3!' } )
-    broker.send( { data: 'sync 11'} )
-    const reply = broker.sendAndWaitForReply( { data: 'sync wait for reply', reply: true })
-    console.debug( 'sync reply:', reply )
-    const res = broker.stop(startid!, 'end')
+    const listenid = broker.on(  ev  => {
+        
+        if( !!ev[replySymbol] ) {
+            return { result: 'this is the reply' } ;
+        }
+
+        eventsHistory.push( ev.data )
+
+        return
+    })
+
+    expect( broker.isOn ).toBeTrue()
     
-    console.debug( 'sync result:', res )
-}
+    const messages = [ 
+        'async 10', 
+        'async hello world 1!', 
+        'async hello world 2!', 
+        'async hello world 3!', 
+        'async 11'
+    ]
+    
+    
+    messages.forEach( data => { 
+        const res = broker.emit( { data } )
+        expect( res ).toBeTrue()
+    })
+    
+    expect( eventsHistory ).toBeArrayOfSize(5)
+    expect( eventsHistory ).toEqual( messages )
 
-async function asyncTest() {
+    const reply = broker.sendAndWaitForReply( { data: 'async wait for reply ', [replySymbol]: true })
 
-    type ListenEvent = { data: string, reply?:boolean  }
-    type ReplyEvent = { result: string }
-    const broker = new AsyncEventBroker<ListenEvent,ReplyEvent>()
+    expect( reply ).not.toBeNil()
+    expect( reply.result ).toBe( 'this is the reply' )
 
-    const startid = await broker.start(  async ( e ) => {
+    const res = broker.stop(listenid!)
+
+    expect( res ).toBeTrue()
+    expect( broker.isOn ).toBeFalse()
         
-        console.debug( 'heard:', e)
-        if( e.reply ) {
-            console.debug( 'reply')
-            return Promise.resolve( { result: 'this is the reply' } );
-        }
-        return
-      })
-    console.log( startid )
-    await broker.send( { data: 'async 10' } )
-    await broker.send( { data: 'async hello world 1! ' } )
-    await broker.send( { data: 'async hello world 2!' } )
-    await broker.send( { data: 'async hello world 3!' } )
-    await broker.send( { data: 'async 11'} )
-    const reply = await broker.sendAndWaitForReply( { data: 'async wait for reply ', reply: true })
-    console.debug( 'async reply:', reply )
-    const res = await broker.stop(startid!, 'end')
-    console.debug( 'async result:', res )
-}
+})
 
-
-function generatorTest() {
+test.skip( "generator test", () => {
 
     let stopped = true
 
@@ -97,8 +174,5 @@ function generatorTest() {
     console.log( 'next', gen.next() )
     console.log( `return()`, gen.return() )
     
-}
+})
 
-syncTest()
-asyncTest()
-generatorTest()

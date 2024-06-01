@@ -42,9 +42,9 @@ test("test send messages single listener", async () => {
 
     expect( await broker.emit( { ev1: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( { ev1: 'd1' } ) )
-        .rejects.toThrow( "no reply event returned by listeners!")
+        .rejects.toThrow( "no reply event returned by listener!")
     expect( broker.emitWithReplys( { ev1: 'd1' } ) )
-        .rejects.toThrow( "no reply event returned by listeners!" )
+        .rejects.toThrow( "no reply event returned by listener!" )
 
 });
    
@@ -58,9 +58,9 @@ test("test send messages more listeners", async () => {
 
     expect( await broker.emit( { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( { data: 'd1' } ) )
-        .rejects.toThrow( "no reply event returned by listeners!")
+        .rejects.toThrow( "no reply event returned by listener!")
     expect( broker.emitWithReplys( { data: 'd1' } ) )
-        .rejects.toThrow( "no reply event returned by listeners!" )
+        .rejects.toThrow( "no reply event returned by listener!" )
     
     const listenerId1 = broker.on( async ( ev ) => {
 
@@ -109,8 +109,8 @@ test("test send messages more listeners", async () => {
 
     expect( await broker.emit( { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( { data: 'd1' } ) )
-        .rejects.toThrow( 'no reply event returned by listeners!')
+        .rejects.toThrow( 'no reply event returned by listener!')
     expect( broker.emitWithReplys( { data: 'd1' } ) )
-        .rejects.toThrow( 'no reply event returned by listeners!')
+        .rejects.toThrow( 'no reply event returned by listener!')
 
 });
