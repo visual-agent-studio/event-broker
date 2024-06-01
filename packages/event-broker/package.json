@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "bun __test__/test.ts",
+    "test": "bun test",
     "build": "tsc"
   },
   "keywords": [],

@@ -17,7 +17,7 @@ import {
 } from '@/app/components/shared/custom-events'
 
 import { sendAndWaitForReply } from '@/app/components/server/event'
-import { AsyncEventBroker, EventBroker, StartID } from '@soulsoftware/event-broker';
+import { AsyncEventBroker, EventBroker, ListenerID } from '@soulsoftware/event-broker';
 
 type NextApiRespnseIO = NextApiResponse & {
     socket: Socket & {
@@ -27,9 +27,9 @@ type NextApiRespnseIO = NextApiResponse & {
   
 interface  SocketSession {
 
-    localStartId?: StartID
+    localStartId?: ListenerID
     brokerLocal: EventBroker<Event>
-    remoteStartId?:StartID
+    remoteStartId?:ListenerID
     brokerRemote: AsyncEventBroker<Event, ReplyEvent>
 
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { AsyncEventBroker, BaseEvent, EventBroker, StartID } from '@soulsoftware/event-broker';
+import { AsyncEventBroker, BaseEvent, EventBroker, ListenerID } from '@soulsoftware/event-broker';
 
 const _TRACE = ( action: () => void  ) => { 
     // action()
@@ -58,7 +58,7 @@ export interface AsyncEventBrokerProxy<ListenEvent, ReplyEvent> {
  */
 export function useAsyncEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>( broker: AsyncEventBroker<ListenEvent,ReplyEvent>, handler?: (event: ListenEvent) => Promise<ReplyEvent | void> ):AsyncEventBrokerProxy<ListenEvent,ReplyEvent> {
 
-    const brokerId = useRef<StartID>();
+    const brokerId = useRef<ListenerID>();
 
     const proxyRef = useRef<AsyncEventBrokerProxy<ListenEvent,ReplyEvent>>( {
         start: async ( handler: (event: ListenEvent) => Promise<ReplyEvent | void> ) => {
@@ -153,7 +153,7 @@ export interface EventBrokerProxy<ListenEvent, ReplyEvent> {
  */
 export function useEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>( broker: EventBroker<ListenEvent,ReplyEvent>, handler?: (event: ListenEvent) => ReplyEvent | void ):EventBrokerProxy<ListenEvent,ReplyEvent> {
 
-    const brokerId = useRef<StartID>();
+    const brokerId = useRef<ListenerID>();
 
     const proxyRef = useRef<EventBrokerProxy<ListenEvent,ReplyEvent>>( {
         start: ( handler: (event: ListenEvent) => ReplyEvent | void ) => {
