@@ -63,15 +63,34 @@ test( "async broker test once", async () => {
 
     const broker = new AsyncEventBroker<ListenEvent,ReplyEvent>()
 
-    const id = await broker.once(  async ( ev ) => {
+    const handler = async ( ev ) => {
         
         if( !!ev[replySymbol] ) {
-            return Promise.resolve( { result: 'this is the reply' } );
+            return Promise.resolve( { result: 'this is the reply'} );
         }
-
-
         return
-    })
+    }
+
+
+    // reply 
+    let id = await broker.once( handler )
+        
+    // await expect( broker.emitWithReply( { data: "Event Data" } ) ).resolves.not.toThrow()
+    try {
+        let reply = await broker.emitWithReply( { data: "Event Data", [replySymbol]: true  } )
+        expect( reply ).not.toBeNil()
+    
+        expect( reply ).toEqual( { result: 'this is the reply' } )
+        expect( broker.isOn ).toBeFalse()
+        const res = await broker.off(id!)
+        expect( res ).toBeFalse()
+    
+    }
+    catch( e ) {
+        throw e.message
+    } 
+
+    id = await broker.once( handler )
 
     expect( id ).not.toBeNil()
 
@@ -83,6 +102,9 @@ test( "async broker test once", async () => {
 
     res = await broker.emit( { data: "Event Data 2" } )
     expect( res ).toBeFalse()
+
+    
+
 
 })
 

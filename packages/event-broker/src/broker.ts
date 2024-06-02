@@ -91,6 +91,11 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
         let res:ReplyEvent|undefined = undefined;
 
+        const stop = () => {
+            this._listenerId = undefined
+            this._listener = undefined
+        }
+
         while (true) {
             try {
                 let event = yield res
@@ -100,7 +105,9 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
                     const ret = await listener.handler( event )
                     res = ret ?? undefined    
                     if( listener.type === 'once' ) {
-                        break;
+                        stop()
+                        yield res
+                        return;
                     }
                 }
                 catch( e ) {
@@ -113,11 +120,10 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
             }
         }   
-        
+
         console.debug("async stop listening...!", listener.type, this._listenerId);
 
-        this._listenerId = undefined
-        this._listener = undefined
+        stop()
     }
 
     /**
@@ -301,6 +307,11 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
         let res:ReplyEvent|undefined = undefined;
 
+        const stop = () => {
+            this._listenerId = undefined
+            this._listener = undefined
+        }
+
         while (true) {
             try {
                 let event = yield res
@@ -310,6 +321,8 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
                     const ret = listener.handler( event )
                     res = ret ?? undefined    
                     if( listener.type === 'once' ) {
+                        stop()
+                        yield res
                         break;
                     }
                 }
@@ -326,9 +339,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
         console.debug("stop listening...!", listener.type, this._listenerId);
 
-        
-        this._listenerId = undefined
-        this._listener = undefined
+        stop()
     }
     
     /**
