@@ -1,9 +1,35 @@
 /**
- * event broker based on javascript generator etiher synchronous and asynchronous
+ * @file broker.ts
+ * @description This file contains the implementation of the AsyncEventBroker class, which is an event broker based on asynchronous JavaScript generators.
+ * The AsyncEventBroker class allows for the registration of a single event handler that can handle events asynchronously and optionally reply to them.
+ * It supports both persistent ('on') and one-time ('once') listeners.
  * 
- * @module event-broker
+ * @module AsyncEventBroker
+ * @version 2.0.0-beta-20240603
+ * @license MIT
+ * 
+ * @example
+ * import { AsyncEventBroker } from './broker';
+ * 
+ * type ListenEvent = { data: string };
+ * type ReplyEvent = { result: string };
+ * 
+ * const broker = new AsyncEventBroker<ListenEvent, ReplyEvent>();
+ * 
+ * const listenerId = broker.on(async event => {
+ *   console.log(event.data);
+ *   return { result: 'Processed' };
+ * });
+ * 
+ * broker.emit({ data: 'Test Event' });
+ * 
+ * const reply = await broker.emitWithReply({ data: 'Test Event' });
+ * console.log(reply.result); // 'Processed'
+ * 
+ * broker.off(listenerId);
  */
-const stopSymbol = Symbol("stop listening");
+
+export const stopSymbol = Symbol("stop listening");
 
 export type ListenerID = string;
 
@@ -32,7 +58,8 @@ export interface  AsyncBrokerListenerOnce<ListenEvent, ReplyEvent> {
 export type AsyncBrokerListener<ListenEvent, ReplyEvent> = AsyncBrokerListenerOn<ListenEvent, ReplyEvent> | AsyncBrokerListenerOnce<ListenEvent, ReplyEvent>
 
 /**
- * An asynchronous event broker.
+ * An asynchronous event broker that support a single event handler.
+ * 
  * @template ListenEvent The type of event to listen for.
  * @template ReplyEvent The type of event to reply with.
  */
@@ -45,7 +72,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
     /**
      * alias for {@link on} method
-     *  
+     * @deprecated use {@link on}
      */
     async start( handler: AsyncEventHandler<ListenEvent, ReplyEvent> ):Promise<ListenerID|undefined> {
         return this.on( handler )
@@ -53,7 +80,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
     /**
      * alias for {@link off} method
-     *  
+     * @deprecated use  {@link off}
      */
     async stop( listenerId:ListenerID ):Promise<boolean> {
         return this.off(listenerId)
@@ -61,7 +88,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
     /**
      * alias for {@link isOn} property
-     * 
+     * @deprecated use {@link isOn}
      */
     get isStarted(): boolean {
         return this.isOn
@@ -69,15 +96,15 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
     
     /**
      * alias for {@link emit} method
-     * 
+     * @deprecated use {@link emit}
      */
     async send(event: ListenEvent): Promise<boolean> {
         return this.emit( event )
     }
     
     /**
-     * 
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     async sendAndWaitForReply( event: ListenEvent ):Promise<ReplyEvent> {
         return this.emitWithReply( event )
@@ -151,10 +178,10 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
     }
 
     /**
-     * Starts listening for sigle event and then off.
+     * Starts listening for sigle event and then {@link off}.
      * 
      * @param handler The event handler.
-     * @returns A promise containing the start ID or undefined.
+     * @returns A promise containing the listener ID or undefined.
      */
     async once( handler: AsyncEventHandler<ListenEvent, ReplyEvent> ):Promise<ListenerID|undefined> {
 
@@ -171,8 +198,8 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
      * Stops listening for events.
      * 
      * @param listenerId The listener ID.
-     * @returns An iterator result containing the reply event or undefined.
-     * @throws An error if the start ID does not match.
+     * @returns {Promise<boolean>} A promise that resolves to true if the listener was successfully stopped, otherwise false.
+     * @throws An error if the listener ID does not match.
      */
     async off( listenerId:ListenerID ):Promise<boolean> {
         if( !this._listener ) {
@@ -268,7 +295,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
     /**
      * alias for {@link on} method
-     *  
+     * @deprecated use {@link on}
      */
     start( handler: EventHandler<ListenEvent, ReplyEvent> ):ListenerID|undefined {
         return this.on( handler )
@@ -276,7 +303,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
     /**
      * alias for {@link off} method
-     *  
+     * @deprecated use {@link off}
      */
     stop( listenerId:ListenerID ):boolean {
         return this.off(listenerId)
@@ -284,7 +311,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
     /**
      * alias for {@link isOn} property
-     * 
+     * @deprecated use {@link isOn}
      */
     get isStarted(): boolean {
         return this.isOn
@@ -292,7 +319,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
     
     /**
      * alias for {@link emit} method
-     * 
+     * @deprecated use {@link emit}
      */
     send(event: ListenEvent): boolean {
         return this.emit( event )
@@ -300,7 +327,8 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
     
     /**
      * 
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     sendAndWaitForReply( event: ListenEvent ):ReplyEvent {
         return this.emitWithReply( event )

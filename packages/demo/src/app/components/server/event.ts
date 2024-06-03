@@ -10,7 +10,7 @@ export function sendAndWaitForReply( brokerRemote: AsyncEventBroker<Event, Reply
 
     const timeout = setTimeout( async () => {
         console.log( 'emitting and wait for replay')
-        const reply = await brokerRemote.sendAndWaitForReply( { data: `how are you?`, reply: true } )
+        const reply = await brokerRemote.emitWithReply( { data: `how are you?`, reply: true } )
         console.log( 'reply', reply )
     } ,  5 * 1000 )
 
