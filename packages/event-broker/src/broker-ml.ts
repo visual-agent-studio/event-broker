@@ -13,33 +13,40 @@ export class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extend
     private _listenerMap = new Map<ListenerID, AsyncEventHandler<ListenEvent, ReplyEvent>>()
 
     private _broker = new AsyncEventBroker<ListenEvent, PromiseSettledResult<void | ReplyEvent>[]>()
-
-
-    constructor() {
-        this._broker.start(async (event) => {
-            
-            const replys = [...this._listenerMap.values()].map(listener => listener(event))
-            if( replys.length > 0 ) {
-                return await Promise.allSettled(replys)
-            }
-            
-        })
-    }
+    private _listenerId?: ListenerID
 
     listenerCount(): number {
         return this._listenerMap.size
     }
 
-    on( handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID {
+    private _handler = async ( event: ListenEvent ): Promise<PromiseSettledResult<void | ReplyEvent>[]|void> => {
 
+        const replys = [...this._listenerMap.values()].map(listener => listener(event))
+        if( replys.length > 0 ) {
+            return await Promise.allSettled(replys)
+        }
+    }
+
+    async on( handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<ListenerID> {
+
+        if( !this._broker.isOn ) {
+            this._listenerId = await this._broker.on(this._handler)
+    
+        }
         const listenerId = generateListenerID()
         this._listenerMap.set(listenerId, handler)
 
         return listenerId
     }
 
-    off( id: ListenerID): boolean {
-        return this._listenerMap.delete(id)
+    async off( id: ListenerID): Promise<boolean> {
+        const result =  this._listenerMap.delete(id)
+
+        if( this._listenerMap.size === 0 && this._listenerId ) {
+            this._broker.off(this._listenerId)
+        }
+
+        return result
     }
 
 

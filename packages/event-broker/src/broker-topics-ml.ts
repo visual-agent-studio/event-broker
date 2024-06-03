@@ -29,7 +29,7 @@ export class AsyncEventBrokerTopicsML<ListenEvent extends BaseEvent, ReplyEvent 
         return count
     }
 
-    on(topic: string, handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID {
+    async on(topic: string, handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<ListenerID> {
         if (!/\w+/.test(topic)) throw new Error("topic is not valid!")
 
         let broker = this._topicMap.get(topic)
@@ -40,14 +40,14 @@ export class AsyncEventBrokerTopicsML<ListenEvent extends BaseEvent, ReplyEvent 
             this._topicMap.set(topic, broker)
         }
 
-        return broker.on( handler )
+        return await broker.on( handler )
     }
 
-    off(topic: string, id: ListenerID): boolean {
+    async off(topic: string, id: ListenerID): Promise<boolean> {
 
         const broker = this._topicMap.get(topic)
         return (broker) ?
-            broker.off(id) :
+            await broker.off(id) :
             false
     }
 

@@ -3,7 +3,7 @@
  * 
  * @module event-broker
  */
-
+const stopSymbol = Symbol("stop listening");
 
 export type ListenerID = string;
 
@@ -38,7 +38,7 @@ export type AsyncBrokerListener<ListenEvent, ReplyEvent> = AsyncBrokerListenerOn
  */
 export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> {
 
-    private _listener?: AsyncGenerator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent> 
+    private _listener?: AsyncGenerator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent | { [stopSymbol]?: boolean }> 
 
     private _listenerId?:ListenerID
     
@@ -86,7 +86,7 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
     /**
     * An asynchronous generator function that listens for events.
     */
-    private async *listen( listener: AsyncBrokerListener<ListenEvent, ReplyEvent>):AsyncGenerator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent> {
+    private async *listen( listener: AsyncBrokerListener<ListenEvent , ReplyEvent>):AsyncGenerator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent | { [stopSymbol]?: boolean }> {
         console.debug("async start listening...!", listener.type, this._listenerId);
 
         let res:ReplyEvent|undefined = undefined;
@@ -98,16 +98,17 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
 
         while (true) {
             try {
-                let event = yield res
+                let event:any = yield res
                 // console.debug( "RECEIVED", event, "EMITTED", res )
 
+                if( !!event[stopSymbol]) {
+                    break;
+                }
                 try { 
                     const ret = await listener.handler( event )
                     res = ret ?? undefined    
                     if( listener.type === 'once' ) {
-                        stop()
-                        yield res
-                        return;
+                        break;
                     }
                 }
                 catch( e ) {
@@ -124,6 +125,11 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
         console.debug("async stop listening...!", listener.type, this._listenerId);
 
         stop()
+        
+        if( listener.type === 'once' ) {
+            yield res
+        }
+
     }
 
     /**
@@ -176,8 +182,9 @@ export class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent extends 
             throw new Error( 'security error: you are not owner of broker!')
         } 
         const l = this._listener 
-        this._listener = undefined
-        this._listenerId = undefined
+        await this._listener.next( { [stopSymbol]: true })
+        // this._listener = undefined
+        // this._listenerId = undefined
         await l.return() 
 
         return true
@@ -255,7 +262,7 @@ export type BrokerListener<ListenEvent, ReplyEvent> = BrokerListenerOn<ListenEve
  */
 export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> {
 
-    private _listener?: Generator<ReplyEvent|undefined,  ReplyEvent|void, ListenEvent> 
+    private _listener?: Generator<ReplyEvent|undefined,  ReplyEvent|void, ListenEvent | { [stopSymbol]?: boolean }> 
 
     private _listenerId?:ListenerID
 
@@ -302,7 +309,7 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
     /**
     * An generator function that listens for events.
     */
-    private *listen( listener: BrokerListener<ListenEvent, ReplyEvent>):Generator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent> {
+    private *listen( listener: BrokerListener<ListenEvent, ReplyEvent>):Generator<ReplyEvent|undefined, ReplyEvent|void, ListenEvent | { [stopSymbol]?: boolean }> {
         console.debug("start listening...!", listener.type, this._listenerId);
 
         let res:ReplyEvent|undefined = undefined;
@@ -314,16 +321,17 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
 
         while (true) {
             try {
-                let event = yield res
+                let event:any = yield res
                 // console.debug( "RECEIVED", event, "EMITTED", res )
+                if( !!event[stopSymbol]) {
+                    break;
+                }
 
                 try { 
                     const ret = listener.handler( event )
                     res = ret ?? undefined    
                     if( listener.type === 'once' ) {
-                        stop()
                         yield res
-                        break;
                     }
                 }
                 catch( e ) {
@@ -340,6 +348,11 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
         console.debug("stop listening...!", listener.type, this._listenerId);
 
         stop()
+
+        if( listener.type === 'once' ) {
+            yield res
+        }
+
     }
     
     /**
@@ -390,8 +403,9 @@ export class EventBroker<ListenEvent extends BaseEvent, ReplyEvent extends BaseE
             throw new Error( 'security error: you are not owner of broker!')
         } 
         const l = this._listener 
-        this._listener = undefined
-        this._listenerId = undefined
+        this._listener.next( { [stopSymbol]: true })
+        // this._listener = undefined
+        // this._listenerId = undefined
         l.return() 
 
         return true
