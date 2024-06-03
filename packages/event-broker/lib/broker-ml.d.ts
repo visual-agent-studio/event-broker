@@ -1,9 +1,4 @@
 import { AsyncEventHandler, BaseEvent, ListenerID } from './broker';
-/**
- * An asynchronous event broker.
- * @template ListenEvent The type of event to listen for.
- * @template ReplyEvent The type of event to reply with.
- */
 export declare class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> {
     private _listenerMap;
     private _broker;
@@ -14,5 +9,5 @@ export declare class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEven
     off(id: ListenerID): Promise<boolean>;
     emit(event: ListenEvent): Promise<boolean>;
     emitWithReply(event: ListenEvent): Promise<ReplyEvent>;
-    emitWithReplys(event: ListenEvent): Promise<ReplyEvent[]>;
+    emitWithReplies(event: ListenEvent): Promise<ReplyEvent[]>;
 }

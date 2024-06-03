@@ -2,11 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AsyncEventBrokerML = void 0;
 const broker_1 = require("./broker");
-/**
- * An asynchronous event broker.
- * @template ListenEvent The type of event to listen for.
- * @template ReplyEvent The type of event to reply with.
- */
 class AsyncEventBrokerML {
     _listenerMap = new Map();
     _broker = new broker_1.AsyncEventBroker();
@@ -43,13 +38,13 @@ class AsyncEventBrokerML {
         return true;
     }
     async emitWithReply(event) {
-        const fullfilled = await this.emitWithReplys(event);
+        const fullfilled = await this.emitWithReplies(event);
         if (fullfilled.length > 1) {
             throw new Error(`more that one reply event returned by listeners!`);
         }
         return fullfilled[0];
     }
-    async emitWithReplys(event) {
+    async emitWithReplies(event) {
         const value = await this._broker.emitWithReply(event);
         const fullfilled = value.filter(v => v.status === 'fulfilled')
             .map(v => v.value)

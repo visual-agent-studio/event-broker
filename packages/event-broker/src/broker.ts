@@ -5,7 +5,7 @@
  * It supports both persistent ('on') and one-time ('once') listeners.
  * 
  * @module AsyncEventBroker
- * @version 1.1.0
+ * @version 2.0.0-beta-20240603
  * @license MIT
  * 
  * @example
