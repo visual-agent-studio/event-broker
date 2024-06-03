@@ -30,7 +30,7 @@ import {  AsyncEventHandler, BaseEvent, ListenerID } from './broker'
 import { AsyncEventBrokerML  } from './broker-ml'
 
 /**
- * An asynchronous event broker that supports multiple topics with multiple handlers.
+ * An asynchronous event broker that supports multiple topics with multiple event handlers.
  * @template ListenEvent The type of event to listen for.
  * @template ReplyEvent The type of event to reply with.
  */
