@@ -1,6 +1,6 @@
 {
   "name": "@soulsoftware/event-broker-react",
-  "version": "2.0.0-beta-20240603-1",
+  "version": "2.0.0-beta-20240603-2",
   "description": "event broker react hook",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "react": "^18",
-    "@soulsoftware/event-broker": "2.0.0-beta-20240603-1"
+    "@soulsoftware/event-broker": "2.0.0-beta-20240603-2"
   }
 }

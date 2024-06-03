@@ -1,6 +1,6 @@
 {
   "name": "event-broker-demo",
-  "version": "2.0.0-beta-20240603-1",
+  "version": "2.0.0-beta-20240603-2",
   "private": true,
   "scripts": {
     "dev": "next dev",
