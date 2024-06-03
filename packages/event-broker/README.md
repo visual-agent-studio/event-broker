@@ -1,72 +1,78 @@
 # Event Broker
 
-In process event broker based on javascript generator
+In process event brokers based on javascript generator
 
+The available brokers are:
 
-## Async Usage
+* `AsyncEventBroker` 
+  > An asynchronous event broker that support a single event handler.
+* `EventBroker`
+  > Synchronous event broker that support a single event handlers
+* `AsyncEventBrokerML`
+  > An asynchronous event broker that supports multiple event handlers.
+* `AsyncEventBrokerTopicsML`
+  > An asynchronous event broker that supports multiple topics with multiple event handlers.
 
-Define Events' type
+## AsyncEventBroker Usage
+
+### Define Events' type
 
 ```typescript
+const replySymbol = Symbol("reply"); 
 
-type BaseEvent = { data: string }
-
-export interface ListenEvent extends BaseEvent { 
-    reply?: boolean
-}
-
-export type ReplyEvent = BaseEvent
-
+type ListenEvent = { data: string, [replySymbol]?: boolean  }
+type ReplyEvent = { result: string }
 ```
-
-Create an instance
+### Create an instance
 ```typescript
-
 const broker = new AsyncEventBroker<ListenEvent, ReplyEvent>()
-
 ```
 
-Start broker
+### Start broker
 ```typescript
 
-const startId = await broker.start( async ( event:ListenEvent ) => {
+const listenerId = await broker.on( async ( ev:ListenEvent ) => {
 
     // handle event
-    const result = await doSomething()
+    const result = await doSomething( ev.data )
 
-    if( event.reply ) {
-        return result; // this will be replyed to sender
+    if( !!ev[replySymbol] ) { // if reply is required
+        return { result } ; // this will be replyed to sender
     }
 })
 
 ```
 
 <u>Note</u>:
-> StartId must be stored because it is need for eventually stop listening event. This is because only who start broker will be able to stop it
+> listenerId must be stored because it is need for eventually stop listening event. This is because: **Only who start broker will be able to stop it**
 
-Send event to broker
+### Send event to broker
 ```typescript
 
-await broker.send( { data: "message1" } )
+await broker.emit( { data: "message1" } )
 
 ```
 
-Send event to broker and wait reply
+### Send event to broker and wait reply
 
 ```typescript
 
-const reply = await broker.sendAndWaitForReply( { data: "message_with_reply", reply: true  } )
-
+const reply = await broker.emitWithReply( { data: "message_with_reply", reply: true  } )
+// reply = { result: "....." }
 ```
 
 Stop broker
 ```typescript
 
 try {
-    await broker.stop( startId )
+    await broker.off( startId )
 }
 catch( e ) {
     // startId is not valid !!!
 }
 
 ```
+
+## Other Examples
+
+Other usage examples could be found in [test](./__test__) folder 

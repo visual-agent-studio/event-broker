@@ -5,7 +5,7 @@
  * It supports both persistent ('on') and one-time ('once') listeners.
  * 
  * @module EventBroker
- * @version 2.0.0-beta-20240603
+ * @version 2.0.0-beta-20240603-1
  * @license MIT
  * 
  * @example
@@ -48,7 +48,7 @@ export type BrokerListener<ListenEvent, ReplyEvent> = BrokerListenerOn<ListenEve
 
 
 /**
- * synchronous event broker that support a single event handlers
+ * A Synchronous event broker that support a single event handlers
  * 
  * @template ListenEvent The type of the event to listen for.
  * @template ReplyEvent The type of the event to reply with.

@@ -5,7 +5,7 @@
  * It supports both persistent ('on') and one-time ('once') listeners for each topic.
  * 
  * @module AsyncEventBrokerTopicsML
- * @version 2.0.0-beta-20240603
+ * @version 2.0.0-beta-20240603-1
  * @license MIT
  * 
  * @example
@@ -30,7 +30,7 @@ import {  AsyncEventHandler, BaseEvent, ListenerID } from './broker'
 import { AsyncEventBrokerML  } from './broker-ml'
 
 /**
- * An asynchronous event broker that supports multiple topics with multiple handlers.
+ * An asynchronous event broker that supports multiple topics with multiple event handlers.
  * @template ListenEvent The type of event to listen for.
  * @template ReplyEvent The type of event to reply with.
  */

@@ -16,7 +16,7 @@ test( "async broker test", async () => {
     const listenid = await broker.on(  async ( ev ) => {
         
         if( !!ev[replySymbol] ) {
-            return Promise.resolve( { result: 'this is the reply' } );
+            return { result: 'this is the reply' };
         }
 
         eventsHistory.push( ev.data )
@@ -47,7 +47,7 @@ test( "async broker test", async () => {
     expect( eventsHistory ).toBeArrayOfSize(5)
     expect( eventsHistory ).toEqual( messages )
 
-    const reply = await broker.sendAndWaitForReply( { data: 'async wait for reply ', [replySymbol]: true })
+    const reply = await broker.emitWithReply( { data: 'async wait for reply ', [replySymbol]: true })
 
     expect( reply ).not.toBeNil()
     expect( reply.result ).toBe( 'this is the reply' )
@@ -66,7 +66,7 @@ test( "async broker test once", async () => {
     const handler = async ( ev:ListenEvent ) => {
         
         if( !!ev[replySymbol] ) {
-            return Promise.resolve( { result: 'this is the reply'} );
+            return { result: 'this is the reply'};
         }
         return
     }
