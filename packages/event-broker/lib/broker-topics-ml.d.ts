@@ -1,5 +1,4 @@
-import { BaseEvent, ListenerID } from './broker';
-type AsyncEventHandler<ListenEvent, ReplyEvent> = (event: ListenEvent) => Promise<ReplyEvent | void>;
+import { AsyncEventHandler, BaseEvent, ListenerID } from './broker';
 /**
  * An asynchronous event broker.
  * @template ListenEvent The type of event to listen for.
@@ -9,8 +8,8 @@ export declare class AsyncEventBrokerTopicsML<ListenEvent extends BaseEvent, Rep
     private _topicMap;
     get topicNames(): string[];
     listenerCount(topic?: string): number;
-    on(topic: string, handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID;
-    off(topic: string, id: ListenerID): boolean;
+    on(topic: string, handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<ListenerID>;
+    off(topic: string, id: ListenerID): Promise<boolean>;
     /**
      * Sends an event and returns an iterator result.
      * @param event The event to send.
@@ -25,4 +24,3 @@ export declare class AsyncEventBrokerTopicsML<ListenEvent extends BaseEvent, Rep
     emitWithReply(topic: string, event: ListenEvent): Promise<ReplyEvent>;
     emitWithReplys(topic: string, event: ListenEvent): Promise<ReplyEvent[]>;
 }
-export {};

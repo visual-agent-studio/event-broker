@@ -1,8 +1,9 @@
 /**
- * event broker based on javascript generator etiher synchronous and asynchronous
+ * event broker based on asynchronous javascript generator
  *
  * @module event-broker
  */
+export declare const stopSymbol: unique symbol;
 export type ListenerID = string;
 export declare const generateListenerID: () => ListenerID;
 /**
@@ -29,27 +30,27 @@ export declare class AsyncEventBroker<ListenEvent extends BaseEvent, ReplyEvent 
     private _listenerId?;
     /**
      * alias for {@link on} method
-     *
+     * @deprecated use {@link on}
      */
     start(handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<ListenerID | undefined>;
     /**
      * alias for {@link off} method
-     *
+     * @deprecated use  {@link off}
      */
     stop(listenerId: ListenerID): Promise<boolean>;
     /**
      * alias for {@link isOn} property
-     *
+     * @deprecated use {@link isOn}
      */
     get isStarted(): boolean;
     /**
      * alias for {@link emit} method
-     *
+     * @deprecated use {@link emit}
      */
     send(event: ListenEvent): Promise<boolean>;
     /**
-     *
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     sendAndWaitForReply(event: ListenEvent): Promise<ReplyEvent>;
     /**
@@ -118,27 +119,28 @@ export declare class EventBroker<ListenEvent extends BaseEvent, ReplyEvent exten
     private _listenerId?;
     /**
      * alias for {@link on} method
-     *
+     * @deprecated use {@link on}
      */
     start(handler: EventHandler<ListenEvent, ReplyEvent>): ListenerID | undefined;
     /**
      * alias for {@link off} method
-     *
+     * @deprecated use {@link off}
      */
     stop(listenerId: ListenerID): boolean;
     /**
      * alias for {@link isOn} property
-     *
+     * @deprecated use {@link isOn}
      */
     get isStarted(): boolean;
     /**
      * alias for {@link emit} method
-     *
+     * @deprecated use {@link emit}
      */
     send(event: ListenEvent): boolean;
     /**
      *
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     sendAndWaitForReply(event: ListenEvent): ReplyEvent;
     /**

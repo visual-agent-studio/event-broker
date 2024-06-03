@@ -38,12 +38,12 @@ test("test send messages one topic one listener", async () => {
     expect( await broker.emit( 't1', { ev1: 'd1' } ) ).toBe(true)
     expect( broker.emitWithReply( 't1', { ev1: 'd1' } ) )
         .rejects.toThrow( 'no valid reply event returned by listeners!')
-    expect( broker.emitWithReplys( 't1', { ev1: 'd1' } ) )
+    expect( broker.emitWithReplies( 't1', { ev1: 'd1' } ) )
         .rejects.toThrow( 'no valid reply event returned by listeners!')
 
 
     expect( await broker.emitWithReply( 't1', { ev1: 'd2', [replySymbol]: true } ) ).toEqual(  { reply: 'reply-d2' } )
-    expect( await broker.emitWithReplys( 't1', { ev1: 'd2', [replySymbol]: true } ) ).toEqual(  [{ reply: 'reply-d2' }] )
+    expect( await broker.emitWithReplies( 't1', { ev1: 'd2', [replySymbol]: true } ) ).toEqual(  [{ reply: 'reply-d2' }] )
    
     expect( await broker.off( 't2', listenerId ) ).toBe( false )
     expect( await broker.off( 't1', listenerId ) ).toBe( true )
@@ -54,7 +54,7 @@ test("test send messages one topic one listener", async () => {
     expect( await broker.emit( 't2', { ev1: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( 't2', { ev1: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!")
-    expect( broker.emitWithReplys( 't2', { ev1: 'd1' } ) )
+    expect( broker.emitWithReplies( 't2', { ev1: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!" )
 
 });
@@ -71,12 +71,12 @@ test("test send messages one topic more listeners", async () => {
     expect( await broker.emit( 't1', { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( 't1', { data: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!")
-    expect( broker.emitWithReplys( 't1', { data: 'd1' } ) )
+    expect( broker.emitWithReplies( 't1', { data: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!" )
     expect( await broker.emit( 't2', { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( 't2', { data: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!")
-    expect( broker.emitWithReplys( 't2', { data: 'd1' } ) )
+    expect( broker.emitWithReplies( 't2', { data: 'd1' } ) )
         .rejects.toThrow( "topic doesn't exist!" )
     
     const listenerId1 = await broker.on( 't1', async ( ev ) => {
@@ -103,7 +103,7 @@ test("test send messages one topic more listeners", async () => {
     expect( await broker.emit( 't1', { data: 'd1' } ) ).toBe(true)
     expect( broker.emitWithReply( 't1', { data: 'd1' } ) )
         .rejects.toThrow( 'no valid reply event returned by listeners!')
-    expect( broker.emitWithReplys( 't1', { data: 'd1' } ) )
+    expect( broker.emitWithReplies( 't1', { data: 'd1' } ) )
         .rejects.toThrow( 'no valid reply event returned by listeners!')
 
 
@@ -116,10 +116,10 @@ test("test send messages one topic more listeners", async () => {
             return { reply: `reply2-${ev.data}` }
         }
     })
-    expect( await broker.emitWithReplys( 't1', { data: 'd2', [replySymbol]: true } ) )
+    expect( await broker.emitWithReplies( 't1', { data: 'd2', [replySymbol]: true } ) )
         .toEqual(  [{ reply: 'reply-d2' }, { reply: 'reply2-d2' }] )
     expect( await broker.off( 't1', listenerId3 ) ).toBe( true )
-    expect( await broker.emitWithReplys( 't1', { data: 'd2', [replySymbol]: true } ) )
+    expect( await broker.emitWithReplies( 't1', { data: 'd2', [replySymbol]: true } ) )
         .toEqual(  [{ reply: 'reply-d2' } ])
         
     expect( await broker.off( 't1', listenerId1 ) ).toBe( true )
@@ -131,7 +131,7 @@ test("test send messages one topic more listeners", async () => {
     expect( await broker.emit( 't2', { data: 'd1' } ) ).toBe(false)
     expect( broker.emitWithReply( 't2', { data: 'd1' } ) )
         .rejects.toThrow( 'broker is not listening!')
-    expect( broker.emitWithReplys( 't2', { data: 'd1' } ) )
+    expect( broker.emitWithReplies( 't2', { data: 'd1' } ) )
         .rejects.toThrow( 'broker is not listening!')
 
 });

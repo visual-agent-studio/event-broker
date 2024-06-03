@@ -22,7 +22,7 @@ export default function SocketViewer() {
     }
    } );
 
-  const sendToServer = async (e:any) => await brokerRemoteProxy.send( { data: valueToSend } )
+  const sendToServer = async (e:any) => await brokerRemoteProxy.emit( { data: valueToSend } )
   
   
   return (
@@ -60,27 +60,27 @@ function useSocket( api: string, fromServer: (event: Event) => void | Event ) {
 
         console.debug('Connected', socket?.id) 
 
-        brokerLocalProxy.start( fromServer )
+        brokerLocalProxy.on( fromServer )
   
-        await brokerRemoteProxy.start( async msg => {
+        await brokerRemoteProxy.on( async msg => {
           console.debug( "send to server", msg )
           socket?.emit( SHARED_TOPIC, msg )
         })
       
         socket?.on( SHARED_TOPIC, msg => {
           console.debug( `from server ${socket?.id}`, msg )
-          brokerLocalProxy.send(msg) 
+          brokerLocalProxy.emit(msg) 
         })
         socket?.on( SHARED_REPLY_TOPIC, (msg, callback ) => {
-            const reply = brokerLocalProxy.sendAndWaitForReply( { ...msg, reply:true }) 
+            const reply = brokerLocalProxy.emitWithReply( { ...msg, reply:true }) 
             callback( reply )
         })
       })
 
       socket.on('disconnect', async () => {
         console.log( 'socket disconnect')
-        brokerLocalProxy.stop()
-        await brokerRemoteProxy.stop()
+        brokerLocalProxy.off()
+        await brokerRemoteProxy.off()
       })
     }
 

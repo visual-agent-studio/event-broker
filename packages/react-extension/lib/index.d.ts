@@ -1,4 +1,4 @@
-import { AsyncEventBroker, BaseEvent, EventBroker } from '@soulsoftware/event-broker';
+import { AsyncEventBroker, AsyncEventHandler, BaseEvent, EventBroker, EventHandler as SyncEventHandler } from '@soulsoftware/event-broker';
 /**
  * Interface representing a proxy for AsyncEventBroker.
  *
@@ -12,27 +12,34 @@ export interface AsyncEventBrokerProxy<ListenEvent, ReplyEvent> {
      * @param {(event: ListenEvent) => Promise<ReplyEvent | void>} handler - The handler function for incoming events.
      * @returns {Promise<void>} A promise that resolves when the broker is started.
      */
-    start(handler: (event: ListenEvent) => Promise<ReplyEvent | void>): Promise<void>;
+    on(handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<void>;
+    /**
+     * Starts the broker with the provided handler and terminate after handle it.
+     *
+     * @param {(event: ListenEvent) => Promise<ReplyEvent | void>} handler - The handler function for incoming events.
+     * @returns {Promise<void>} A promise that resolves when the broker is started.
+     */
+    once(handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<void>;
     /**
      * Stops the broker.
      *
      * @returns {Promise<void>} A promise that resolves when the broker is stopped.
      */
-    stop(): Promise<void>;
+    off(): Promise<void>;
     /**
      * Sends an event to the broker.
      *
      * @param {ListenEvent} event - The event to send.
      * @returns {Promise<void>} A promise that resolves when the event is sent.
      */
-    send(event: ListenEvent): Promise<void>;
+    emit(event: ListenEvent): Promise<void>;
     /**
      * Sends an event to the broker and waits for a reply.
      *
      * @param {ListenEvent} event - The event to send.
      * @returns {Promise<ReplyEvent | void>} A promise that resolves when reply event is received (void means that message has been delivered and no reply is expected).
      */
-    sendAndWaitForReply(event: ListenEvent): Promise<ReplyEvent | void>;
+    emitWithReply(event: ListenEvent): Promise<ReplyEvent | void>;
 }
 /**
  * Custom hook to manage AsyncEventBroker lifecycle
@@ -46,7 +53,7 @@ export interface AsyncEventBrokerProxy<ListenEvent, ReplyEvent> {
  * @param {(event: ListenEvent) => Promise<ReplyEvent | void>} [handler] - Optional handler function for incoming events.
  * @returns {AsyncEventBrokerProxy<ListenEvent, ReplyEvent>} - An AsyncEventBroker proxy that ensure a safe lifecycle management.
  */
-export declare function useAsyncEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>(broker: AsyncEventBroker<ListenEvent, ReplyEvent>, handler?: (event: ListenEvent) => Promise<ReplyEvent | void>): AsyncEventBrokerProxy<ListenEvent, ReplyEvent>;
+export declare function useAsyncEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>(broker: AsyncEventBroker<ListenEvent, ReplyEvent>, handler?: AsyncEventHandler<ListenEvent, ReplyEvent>): AsyncEventBrokerProxy<ListenEvent, ReplyEvent>;
 /**
  * Interface representing a proxy for EventBroker.
  *
@@ -60,27 +67,34 @@ export interface EventBrokerProxy<ListenEvent, ReplyEvent> {
      * @param {(event: ListenEvent) => ReplyEvent | void} handler - The handler function for incoming events.
      * @returns {void} - returns when broker is started.
      */
-    start(handler: (event: ListenEvent) => ReplyEvent | void): void;
+    on(handler: SyncEventHandler<ListenEvent, ReplyEvent>): void;
+    /**
+     * Starts the broker with the provided handler and terminate after handle it.
+     *
+     * @param {(event: ListenEvent) => ReplyEvent | void} handler - The handler function for incoming events.
+     * @returns {void} - returns when broker is started.
+     */
+    once(handler: SyncEventHandler<ListenEvent, ReplyEvent>): void;
     /**
      * Stops the broker.
      *
      * @returns {void} returns when broker is stopped.
      */
-    stop(): void;
+    off(): void;
     /**
      * Sends an event to the broker.
      *
      * @param {ListenEvent} event - The event to send.
      * @returns {void} returns when the event is sent.
      */
-    send(event: ListenEvent): void;
+    emit(event: ListenEvent): void;
     /**
      * Sends an event to the broker and waits for a reply.
      *
      * @param {ListenEvent} event - The event to send.
      * @returns {ReplyEvent | void} returns when reply event is received (void means that message has been delivered and no reply is expected).
      */
-    sendAndWaitForReply(event: ListenEvent): ReplyEvent | void;
+    emitWithReply(event: ListenEvent): ReplyEvent | void;
 }
 /**
  * Custom hook to manage EventBroker lifecycle
@@ -94,4 +108,4 @@ export interface EventBrokerProxy<ListenEvent, ReplyEvent> {
  * @param {(event: ListenEvent) => ReplyEvent | void} [handler] - Optional handler function for incoming events.
  * @returns {EventBrokerProxy<ListenEvent, ReplyEvent>} - An EventBroker proxy that ensure safe lifecycle management.
  */
-export declare function useEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>(broker: EventBroker<ListenEvent, ReplyEvent>, handler?: (event: ListenEvent) => ReplyEvent | void): EventBrokerProxy<ListenEvent, ReplyEvent>;
+export declare function useEventBroker<ListenEvent extends BaseEvent = any, ReplyEvent extends BaseEvent = ListenEvent>(broker: EventBroker<ListenEvent, ReplyEvent>, handler?: SyncEventHandler<ListenEvent, ReplyEvent>): EventBrokerProxy<ListenEvent, ReplyEvent>;

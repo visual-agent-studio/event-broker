@@ -22,7 +22,7 @@ class AsyncEventBrokerTopicsML {
         }
         return count;
     }
-    on(topic, handler) {
+    async on(topic, handler) {
         if (!/\w+/.test(topic))
             throw new Error("topic is not valid!");
         let broker = this._topicMap.get(topic);
@@ -30,12 +30,12 @@ class AsyncEventBrokerTopicsML {
             broker = new broker_ml_1.AsyncEventBrokerML();
             this._topicMap.set(topic, broker);
         }
-        return broker.on(handler);
+        return await broker.on(handler);
     }
-    off(topic, id) {
+    async off(topic, id) {
         const broker = this._topicMap.get(topic);
         return (broker) ?
-            broker.off(id) :
+            await broker.off(id) :
             false;
     }
     /**

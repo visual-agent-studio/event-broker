@@ -1,11 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EventBroker = exports.AsyncEventBroker = exports.generateListenerID = exports.stopSymbol = void 0;
 /**
- * event broker based on javascript generator etiher synchronous and asynchronous
+ * event broker based on asynchronous javascript generator
  *
  * @module event-broker
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EventBroker = exports.AsyncEventBroker = exports.generateListenerID = void 0;
+exports.stopSymbol = Symbol("stop listening");
 const generateListenerID = () => `el_${Math.floor(Math.random() * Date.now())}@${Date.now()}_`;
 exports.generateListenerID = generateListenerID;
 /**
@@ -18,35 +19,35 @@ class AsyncEventBroker {
     _listenerId;
     /**
      * alias for {@link on} method
-     *
+     * @deprecated use {@link on}
      */
     async start(handler) {
         return this.on(handler);
     }
     /**
      * alias for {@link off} method
-     *
+     * @deprecated use  {@link off}
      */
     async stop(listenerId) {
         return this.off(listenerId);
     }
     /**
      * alias for {@link isOn} property
-     *
+     * @deprecated use {@link isOn}
      */
     get isStarted() {
         return this.isOn;
     }
     /**
      * alias for {@link emit} method
-     *
+     * @deprecated use {@link emit}
      */
     async send(event) {
         return this.emit(event);
     }
     /**
-     *
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     async sendAndWaitForReply(event) {
         return this.emitWithReply(event);
@@ -57,10 +58,17 @@ class AsyncEventBroker {
     async *listen(listener) {
         console.debug("async start listening...!", listener.type, this._listenerId);
         let res = undefined;
+        const stop = () => {
+            this._listenerId = undefined;
+            this._listener = undefined;
+        };
         while (true) {
             try {
                 let event = yield res;
                 // console.debug( "RECEIVED", event, "EMITTED", res )
+                if (!!event[exports.stopSymbol]) {
+                    break;
+                }
                 try {
                     const ret = await listener.handler(event);
                     res = ret ?? undefined;
@@ -78,8 +86,10 @@ class AsyncEventBroker {
             }
         }
         console.debug("async stop listening...!", listener.type, this._listenerId);
-        this._listenerId = undefined;
-        this._listener = undefined;
+        stop();
+        if (listener.type === 'once') {
+            yield res;
+        }
     }
     /**
      * Starts listening for events.
@@ -124,8 +134,9 @@ class AsyncEventBroker {
             throw new Error('security error: you are not owner of broker!');
         }
         const l = this._listener;
-        this._listener = undefined;
-        this._listenerId = undefined;
+        await this._listener.next({ [exports.stopSymbol]: true });
+        // this._listener = undefined
+        // this._listenerId = undefined
         await l.return();
         return true;
     }
@@ -177,35 +188,36 @@ class EventBroker {
     _listenerId;
     /**
      * alias for {@link on} method
-     *
+     * @deprecated use {@link on}
      */
     start(handler) {
         return this.on(handler);
     }
     /**
      * alias for {@link off} method
-     *
+     * @deprecated use {@link off}
      */
     stop(listenerId) {
         return this.off(listenerId);
     }
     /**
      * alias for {@link isOn} property
-     *
+     * @deprecated use {@link isOn}
      */
     get isStarted() {
         return this.isOn;
     }
     /**
      * alias for {@link emit} method
-     *
+     * @deprecated use {@link emit}
      */
     send(event) {
         return this.emit(event);
     }
     /**
      *
-     *  alias for {@link emitWithReply} method
+     * alias for {@link emitWithReply} method
+     * @deprecated use {@link emitWithReply}
      */
     sendAndWaitForReply(event) {
         return this.emitWithReply(event);
@@ -216,15 +228,22 @@ class EventBroker {
     *listen(listener) {
         console.debug("start listening...!", listener.type, this._listenerId);
         let res = undefined;
+        const stop = () => {
+            this._listenerId = undefined;
+            this._listener = undefined;
+        };
         while (true) {
             try {
                 let event = yield res;
                 // console.debug( "RECEIVED", event, "EMITTED", res )
+                if (!!event[exports.stopSymbol]) {
+                    break;
+                }
                 try {
                     const ret = listener.handler(event);
                     res = ret ?? undefined;
                     if (listener.type === 'once') {
-                        break;
+                        yield res;
                     }
                 }
                 catch (e) {
@@ -237,8 +256,10 @@ class EventBroker {
             }
         }
         console.debug("stop listening...!", listener.type, this._listenerId);
-        this._listenerId = undefined;
-        this._listener = undefined;
+        stop();
+        if (listener.type === 'once') {
+            yield res;
+        }
     }
     /**
      * Starts listening for events.
@@ -284,8 +305,9 @@ class EventBroker {
             throw new Error('security error: you are not owner of broker!');
         }
         const l = this._listener;
-        this._listener = undefined;
-        this._listenerId = undefined;
+        this._listener.next({ [exports.stopSymbol]: true });
+        // this._listener = undefined
+        // this._listenerId = undefined
         l.return();
         return true;
     }

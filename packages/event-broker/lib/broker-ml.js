@@ -10,24 +10,30 @@ const broker_1 = require("./broker");
 class AsyncEventBrokerML {
     _listenerMap = new Map();
     _broker = new broker_1.AsyncEventBroker();
-    constructor() {
-        this._broker.start(async (event) => {
-            const replys = [...this._listenerMap.values()].map(listener => listener(event));
-            if (replys.length > 0) {
-                return await Promise.allSettled(replys);
-            }
-        });
-    }
+    _listenerId;
     listenerCount() {
         return this._listenerMap.size;
     }
-    on(handler) {
+    _handler = async (event) => {
+        const replys = [...this._listenerMap.values()].map(listener => listener(event));
+        if (replys.length > 0) {
+            return await Promise.allSettled(replys);
+        }
+    };
+    async on(handler) {
+        if (!this._broker.isOn) {
+            this._listenerId = await this._broker.on(this._handler);
+        }
         const listenerId = (0, broker_1.generateListenerID)();
         this._listenerMap.set(listenerId, handler);
         return listenerId;
     }
-    off(id) {
-        return this._listenerMap.delete(id);
+    async off(id) {
+        const result = this._listenerMap.delete(id);
+        if (this._listenerMap.size === 0 && this._listenerId) {
+            this._broker.off(this._listenerId);
+        }
+        return result;
     }
     async emit(event) {
         if (this._listenerMap.size === 0) {

@@ -7,10 +7,11 @@ import { AsyncEventHandler, BaseEvent, ListenerID } from './broker';
 export declare class AsyncEventBrokerML<ListenEvent extends BaseEvent, ReplyEvent extends BaseEvent = ListenEvent> {
     private _listenerMap;
     private _broker;
-    constructor();
+    private _listenerId?;
     listenerCount(): number;
-    on(handler: AsyncEventHandler<ListenEvent, ReplyEvent>): ListenerID;
-    off(id: ListenerID): boolean;
+    private _handler;
+    on(handler: AsyncEventHandler<ListenEvent, ReplyEvent>): Promise<ListenerID>;
+    off(id: ListenerID): Promise<boolean>;
     emit(event: ListenEvent): Promise<boolean>;
     emitWithReply(event: ListenEvent): Promise<ReplyEvent>;
     emitWithReplys(event: ListenEvent): Promise<ReplyEvent[]>;
