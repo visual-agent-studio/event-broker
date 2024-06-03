@@ -57,7 +57,7 @@ await broker.emit( { data: "message1" } )
 
 ```typescript
 
-const reply = await broker.emitWithReply( { data: "message_with_reply", reply: true  } )
+const reply = await broker.emitWithReply( { data: "message_with_reply", [replySymbol]: true  } )
 // reply = { result: "....." }
 ```
 
