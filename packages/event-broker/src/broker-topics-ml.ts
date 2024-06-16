@@ -5,7 +5,7 @@
  * It supports both persistent ('on') and one-time ('once') listeners for each topic.
  * 
  * @module AsyncEventBrokerTopicsML
- * @version 2.0.0-beta-20240603-2
+ * @version 2.0.0-beta-20240603-3
  * @license MIT
  * 
  * @example

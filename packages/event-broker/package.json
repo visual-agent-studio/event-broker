@@ -1,6 +1,6 @@
 {
   "name": "@soulsoftware/event-broker",
-  "version": "2.0.0-beta-20240603-2",
+  "version": "2.0.0-beta-20240603-3",
   "description": "event broker based on javascript generator",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
