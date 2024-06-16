@@ -2,6 +2,52 @@
 
 Changelog of event-broker.
 
+## v2.0.0 (2024-06-16)
+
+### Other changes
+
+**Merge branch 'release/2.0.0'**
+
+
+[f92be](https://github.com/visual-agent-studio/event-broker/commit/f92be517e5b6ccf) bsorrentino *2024-06-16 11:28:41*
+
+**Merge tag 'v2.0.0-beta-20240603-3' into develop**
+
+* new beta release 
+
+[8cca6](https://github.com/visual-agent-studio/event-broker/commit/8cca6b960336c3d) bsorrentino *2024-06-16 11:22:31*
+
+
+## v2.0.0-beta-20240603-3 (2024-06-16)
+
+### Bug Fixes
+
+-  export type separately ([98ae9](https://github.com/visual-agent-studio/event-broker/commit/98ae9d4cd0b2fc1) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/2.0.0-beta-20240603-3'**
+
+
+[a56bc](https://github.com/visual-agent-studio/event-broker/commit/a56bcb16d58262b) bsorrentino *2024-06-16 11:22:20*
+
+**Merge branch 'main' into develop**
+
+
+[a55e7](https://github.com/visual-agent-studio/event-broker/commit/a55e7f228c051ca) bsorrentino *2024-06-03 17:21:41*
+
+**Merge branch 'hotfix/changelog'**
+
+
+[7ac30](https://github.com/visual-agent-studio/event-broker/commit/7ac30993e06c582) bsorrentino *2024-06-03 17:21:39*
+
+**Merge tag 'v2.0.0-beta-20240603-2' into develop**
+
+* new release 
+
+[1cea6](https://github.com/visual-agent-studio/event-broker/commit/1cea6fae7da28b1) bsorrentino *2024-06-03 17:20:01*
+
+
 ## v2.0.0-beta-20240603-2 (2024-06-03)
 
 ### Other changes
