@@ -5,7 +5,7 @@
  * It supports both persistent ('on') and one-time ('once') listeners.
  * 
  * @module EventBroker
- * @version 2.0.0-beta-20240603-3
+ * @version 2.0.0
  * @license MIT
  * 
  * @example
